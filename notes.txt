@@ -1,0 +1,272 @@
+notes about sql course from UCSC
+
+https://classroom.ucsc-extension.edu/courses/4070
+
+Relational Database Design and SQL Programming
+=> what is the definition of relational vs non relational DB (for example mongoDB)
+=> This course must be finished by Monday April 6
+=> DB root pwd "Miho0610"
+=> last quizz done by Miho was the 2.4 - 2.5 
+
+In order to install MySQL:
+1. Go to the dev.mysql.com/downloads/installer
+
+
+Relational Database Management System (RDBMS)
+entity-relationship diagrams (ERD)
+Oracle 11g to design the ERD
+Oracle products such as SQL Developer
+MySQL (version 8)
+Teach Yourself SQL in 24 Hours, 5th Edition, Ryan Stephens
+Oracle as an example database such as Oracle 12c, 11g Express or MySQL
+
+Definition:
+SQL (Structured Query Language) is a language which is used to operate your database
+MYSQL is a RDBMS (This RDBMS system is used with the combination of PHP and Apache Web Server, on top of a Linux distribution)
+MySQL uses the SQL language to query the database.
+Notice MS SQL (from microsoft) is an other RDBMS
+
+============================
+
+"employees database"
+http://chrisstrelioff.ws/sandbox/2015/04/22/employees_database_for_mysql_setup_and_simple_queries.html
+https://dev.mysql.com/doc/employee/en/employees-installation.html
+
+Install MySQL
+download database from github
+import databse in mySQL (mysql -u root -p -t < employees.sql)
+enter mySQL prompt (mysql -u root -p)
+
+mis-macbook-pro:/ Miho$ /usr/local/mysql/bin/mysql --version
+/usr/local/mysql/bin/mysql  Ver 8.0.19 for macos10.15 on x86_64 (MySQL Community Server - GPL)
+
+============================
+
+Notice weird stuff about git
+
+mis-macbook-pro:html Miho$ git remote -v
+origin	https://github.com/mihogreen-mihogreen/html.git (fetch)
+origin	https://github.com/mihogreen-mihogreen/html.git (push)
+mis-macbook-pro:html Miho$ git remote set-url origin "https://mihogreen-mihogreen@github.com/mihogreen-mihogreen/html.git"
+mis-macbook-pro:html Miho$ git remote -v
+origin	https://mihogreen-mihogreen@github.com/mihogreen-mihogreen/html.git (fetch)
+
+=> first one doesn't work only the second one
+
+============================
+
+29 Mars 2020 starting lecture from beginning
+Goal unit 1 and 2 today
+
+25 videos of 15 min approximatly 6h15min total to watch
+
+------------------     
+Video 0.01 
+
+SQL is also used to retrieve data from Hadoop and Spark (so not olny relational database)
+MySQL (version 8.0) 
+use an already made DB about a fictious company "employees database"
+
+------------------
+Video 1.01
+
+rapid search and retrieval
+collection of related datal
+At the beginning: hierarchical (tree) structure
+then table with rows and columns and a unique key to link table together
+primary key (unique in the table) and foreign key
+from 1970
+pipelining statement insisde a statement iniside a statement etc...
+
+SELECT columnName1, columnName2 ...
+FROM tableName
+WHERE condition
+
+Type of statement
+SQL Data Statements: read, insert, update, delete data (SELECT, INSERT, DELETE, UPDATE)
+SQL Schema Statements: create table, indexes, views
+SQL Transaction Statements: group multiple data statements, so they can be made permaneent or discarded as a group (START TRANSACTION, COMMIT, ROLLBACK)
+
+------------------
+Video 1.02
+
+(Physical Design)
+Table
+Column1
+Column2
+
+(Logical Design)
+Entity
+Attribute1
+Attribute2
+
+Attribute can be atomic or multi-valued
+
+normalization
+- make sure one entity represent only one thing ( a customer vs a company)
+- make sure all attributes are atomic
+- make sure the same value is not store in multiple places
+
+parent child relation (company (parent) to location (clhild))
+
+------------------
+Video 1.03
+
+Entity relationship model => diagram of the database
+Crows foot notation
+= only one
+0| zero or one
+0< zero one or many
+|< one or many
+< many
+
+cardinality (number of elements you can have in a set)
+
+woman 0< children
+children = woman
+woman =------0< children
+
+Non-identifying relationship
+doted line
+(other wise it is a solid line)
+
+Logical Models vs Physical models 
+Physical the real one used by the machine
+Logical the one used to get on overview of whats going on
+
+------------------
+Video 1.04
+
+Data types:
+strings (length)
+	CHAR (255 bytes) (padded with blank space)
+	VARCHAR (64 kbytes) (will only allocate the number of bytes needes)
+
+numeric
+	integer (TINYINT SMALINT MEDIUMINT INTEGER BIGINT)
+	float (FLOAT DOUBLE)
+
+float defintion FLOAT(10,4) 10 digits max on the left side of the coma and 4 on the otherside
+
+temporal data types
+	DATE
+	DATETIME
+
+see https://dev.mysql.com
+function
+cast 
+str_to_date
+
+photographs, audio clip, large text
+	BLOB
+	TEXT
+
+------------------
+Video 2.01
+
+* SQL Schema Statements: create table, indexes, views
+
+INDEX: (same thing as a book index, index need to be rebuild when adding data)
+
+CREATE INDEX lname_bdate
+ON employees
+(last_name, birth_date);
+=> make faster to retrieve employee born after a date
+
+CREATE TABLE employee_awards (
+	emp_no INT NOT NULL,
+	award_date DATE NOT NULL,
+	award_amount FLOAT (6,2),
+	FOREIGN KEY (emp_no) REFERENCES employees (emp_no),
+	PRIMARY KEY (emp_no, award_date)
+);
+
+VIEW:
+fabricate column from other data
+when the view is created it acts like a table but only retrieve some data
+
+CREATE VIEW Employee_Light
+AS
+SELECT first_name, last_name,
+	concat_ws(' ', first_name, last_name) full_name,
+	case
+		when year(birth_date) < 1965
+			then 'Baby Boomer'
+		when year(birth_date) < 1985
+			then 'Generation X'
+		when year(birth_date) < 2005
+			then 'Millenial'
+		else 'TBD'
+	end generation_name
+FROM employees;
+
+* SQL Data Statements: read, insert, update, delete data (SELECT, INSERT, DELETE, UPDATE)
+
+INSERT INTO employee_awards
+	(emp_no, award_date, award_amount)
+VALUES
+	(253406, str_to_date('2018-07-20', '%Y-%m-%d'), 2000);
+
+UPDATE employee_awards
+SET award_amount = award_amount + 500
+WHERE emp_no = 253406
+	AND award_date = str_to_date('2018-07-20','%Y-%m-%d');
+
+DELETE FROM employee_awards
+WHERE emp_no = 254306
+	AND award_date =  = str_to_date('2018-07-20','%Y-%m-%d');
+
+* SQL Transaction Statements: group multiple data statements, so they can be made permaneent or discarded as a group (START TRANSACTION, COMMIT, ROLLBACK)
+
+the unit of work:
+example transfering money
+
+START TRANSACTION => unit of work has begun
+COMMIT => make change permanent
+ROLLBACK => undo transaction
+
+
+SQL used by
+- MS excel
+- jasper reports and business objects
+
+- Data Platform => SQL interface
+- Hadoop (non relational) => Hive
+- Spark (non relational) => Spark SQL
+- MongoDB (NoSQL) => Apache Drill
+
+------------------
+Video 2.02
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
