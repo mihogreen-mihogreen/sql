@@ -18,7 +18,11 @@ SELECT concat_ws('', first_name, last_name) as full_name,
 	year(hire_date) as hire_year
 	FROM employees 
 	WHERE first_name LIKE 'J%'
-	AND last_name LIKE 'Q%'
+	AND last_name LIKE 'Q%';
+
+SELECT now();
+
+SELECT 765.32 + 13.03;
 
 SELECT first_name, last_name, hire_date
 	FROM employees 
@@ -26,6 +30,14 @@ SELECT first_name, last_name, hire_date
 	AND last_name LIKE 'Q%'
 	ORDER BY first_name;
 
+# asc for ascending order
+SELECT first_name, last_name, hire_date
+	FROM employees 
+	WHERE first_name LIKE 'J%'
+	AND last_name LIKE 'Q%'
+	ORDER BY first_name, hire_date desc;
+
+# use colum index in the select clause
 SELECT first_name, last_name, hire_date
 	FROM employees
 	WHERE first_name LIKE 'J%'
@@ -51,13 +63,25 @@ SELECT first_name, last_name, hire_date
 SELECT 1 = 1 AND (9 > 1 OR 5 < 1);
 SELECT NOT(5 < 1 AND 1 = 2);
 SELECT 1 = 1 AND NOT 5 < 1;
+
+# _ => one character
+# % => any number of character
 SELECT '(987) 654-3210' LIKE '(___)___=____';
 SELECT 'TUVWXYZ' LIKE '%DE%';
 
+# REGEXP
+SELECT '123' REGEXP '^[0-9]{3}$';
+SELECT 'A23' REGEXP '^[0-9]{3}$';
+
+# NULL is the absence of a value (you have to use IS NULL)
 SELECT *
-FROM employees
-WHERE reg_voter <> 'Y'
-OR reg_voter IS NULL;
+	FROM salaries
+	WHERE salary IS NULL
+
+SELECT *
+	FROM employees
+	WHERE reg_voter <> 'Y'
+	OR reg_voter IS NULL;
 
 # video 2.04
 # -----------

@@ -5,8 +5,7 @@ https://classroom.ucsc-extension.edu/courses/4070
 Relational Database Design and SQL Programming
 => what is the definition of relational vs non relational DB (for example mongoDB)
 => This course must be finished by Monday April 6
-=> DB root pwd "Miho0610"
-=> last quizz done by Miho was the 2.4 - 2.5 
+=> last quizz done was the 2.4 - 2.5 
 
 In order to install MySQL:
 1. Go to the dev.mysql.com/downloads/installer
@@ -237,6 +236,41 @@ SQL used by
 
 ------------------
 Video 2.02
+
+Look at the select statement file
+
+------------------
+Video 2.03
+
+Expressions and Operators
+
+comparaison 
+=
+!=
+<>
+>
+<
+LIKE
+IN
+BETWEEN
+
+Arithmetic
++
+-
+*
+%
+
+SELECT 3 BETWEEN 1 AND 9;
+SELECT 'A' IN ('A', 'B', 'C');
+
+1 = true
+0 = false
+
+------------------
+Video 2.04
+
+
+
 
 
 
