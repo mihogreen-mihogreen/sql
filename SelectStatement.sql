@@ -85,42 +85,81 @@ SELECT *
 
 # video 2.04
 # -----------
+# Inner joins
 SELECT e.first_name, e.last_name, d.dept_name
 	FROM employees e
 	JOIN dept_emp de
 	ON e.emp_no = de.emp_no
 	JOIN departments d
 	ON de.dept_no = d.dept_no
-	WHERE e.hire_date BETWEEN '1985-01-01' AND '1985-01-31';
+	WHERE e.hire_date BETWEEN '1985-01-01' AND '1985-01-31'
 	AND de.to_date > now();
 
+# same result as above but dufferent way to write it
+SELECT e.first_name, e.last_name, d.dept_name
+	FROM employees e
+	JOIN dept_emp de
+	ON e.emp_no = de.emp_no
+	AND de.to_date > now()
+	JOIN departments d
+	ON de.dept_no = d.dept_no
+	WHERE e.hire_date BETWEEN '1985-01-01' AND '1985-01-31';
 
 SELECT e.first_name, e.last_name, d.dept_name
 	FROM employees e
-	LEFT OUTER JOIN dep_manager dm
+	JOIN dept_manager dm
+	ON e.emp_no = dm.emp_no
+	AND dm.to_date > now()
+	JOIN departments d
+	ON dm.dept_no = d.dept_no;
+
+# Outer join
+# LEFT => so the left table of the join will be used to define the number of row here is the e.emp_no
+SELECT e.first_name, e.last_name, d.dept_name
+	FROM employees e
+	LEFT OUTER JOIN dept_manager dm
 	ON e.emp_no = dm.emp_no
 	AND dm.to_date > now()
 	LEFT OUTER JOIN departments d
 	ON dm.dept_no = d.dept_no;
 
+# RIGHT => so the right table of the join will be used to define the number of row
+# not used much
+SELECT e.first_name, e.last_name, d.dept_name
+	FROM departments d
+	RIGHT OUTER JOIN dept_manager dm
+	ON dm.dept_no = d.dept_no
+	AND dm.to_date > now()
+	RIGHT OUTER JOIN employees e
+	ON e.emp_no = dm.emp_no;
 
-concat_ws('', e.first_name, e.last_name) employee_nm, d.dept_name, 
-concat_ws('', mgr.first_name, mgr.last_name) manager_nm
+
+SELECT concat_ws(' ', e.first_name, e.last_name) employee_nm, d.dept_name, 
+concat_ws(' ', mgr.first_name, mgr.last_name) manager_nm
 	FROM employees e
 	JOIN dept_emp de
 	ON de.emp_no = e.emp_no
 	AND de.to_date > now()
 	JOIN departments d 
 	ON de.dept_no = d.dept_no
-	JOIN dep_manager dm
+	JOIN dept_manager dm
 	ON dm.dept_no = d.dept_no
 	AND dm.to_date > now()
 	JOIN employees mgr
 	ON dm.emp_no = mgr.emp_no;
 
-
-# video 2.06;No duplicate from 2 datasets
+# text 2.05
 # -----------
+
+# CROSS JOIN
+
+
+
+
+# video 2.06
+# -----------
+
+# No duplicate from 2 datasets
 SELECT first_name, last_name, birth_date, hire_date
 	FROM employees
 	WHERE hire_date = cast('1998-12-12' as date)
@@ -130,19 +169,52 @@ SELECT first_name, last_name, birth_date, hire_date
 	WHERE first_name = 'Pranjal'
 	AND year(hire_date) = '1998';
 
-# video 2.06; Intersect
-# -----------
+# UNION ALL keep the duplicate
+SELECT first_name, last_name, birth_date, hire_date
+	FROM employees
+	WHERE hire_date = cast('1998-12-12' as date)
+	UNION ALL
+	SELECT first_name, last_name, birth_date, hire_date
+	FROM employees
+	WHERE first_name = 'Pranjal'
+	AND year(hire_date) = '1998';
+
+# Intersection (overlaping row)
+SELECT first_name, last_name, birth_date, hire_date
+	FROM employees
+	WHERE hire_date = cast('1998-12-12' as date)
+	INTERSECT
+	SELECT first_name, last_name, birth_date, hire_date
+	FROM employees
+	WHERE first_name = 'Pranjal'
+	AND year(hire_date) = '1998';
+
+# simulation of intersect since it is missing in mysql
 SELECT e1.first_name, e1.last_name, e1.birth_date, e1.hire_date
 	FROM employees e1
 	INNER JOIN employees e2
-	ONe1.first_name = e2.first_name
+	ON e1.first_name = e2.first_name
 	AND e1.last_name = e2.last_name
-	WHERE e1 hire_date = cast('1998-12-12' as date)
+	WHERE e1.hire_date = cast('1998-12-12' as date)
 	AND e2.first_name = 'Pranjal'
-	AND year (e2.hire_date) = '1998'; 
+	AND year(e2.hire_date) = '1998'; 
 
-# video 2.06; Difference
-# -----------
+# Difference
+# one set but exculing the overlap from the other set
+# Oracle EXCEPT operator
+# Sql MINUS operator
+# feature missing from mySql
+
+SELECT first_name, last_name, birth_date, hire_date
+	FROM employees
+	WHERE hire_date = cast('1998-12-12' as date)
+	MINUS
+	SELECT first_name, last_name, birth_date, hire_date
+	FROM employees
+	WHERE first_name = 'Pranjal'
+	AND year(hire_date) = '1998';
+
+# simulation of the minus operator
 SELECT e1.first_name, e1.last_name, e1.birth_date, e1.hire_date
 	FROM employees e1
 	LEFT OUTER JOIN employees e2
@@ -155,6 +227,174 @@ SELECT e1.first_name, e1.last_name, e1.birth_date, e1.hire_date
 
 
 # video 2.07
+# -----------
+
+# grouping data
+SELECT d.dept_name, s.salary
+FROM employees e
+	INNER JOIN dept_emp de
+		ON de.emp_no = e.emp_no
+			AND de.to_date > now()
+	INNER JOIN departments d 
+		ON de.dept_no = d.dept_no
+	INNER JOIN salaries s
+		ON s.emp_no = e.emp_no
+			AND s.to_date > now()
+ORDER BY d.dept_name, s.salary desc;
+
+SELECT d.dept_name, max(s.salary) highest_salary
+FROM employees e
+	INNER JOIN dept_emp de
+		ON de.emp_no = e.emp_no
+			AND de.to_date > now()
+	INNER JOIN departments d 
+		ON de.dept_no = d.dept_no
+	INNER JOIN salaries s
+		ON s.emp_no = e.emp_no
+			AND s.to_date > now()
+GROUP BY d.dept_name;
+
+SELECT d.dept_name, max(s.salary) highest_salary
+FROM employees e
+	INNER JOIN dept_emp de
+		ON de.emp_no = e.emp_no
+			AND de.to_date > now()
+	INNER JOIN departments d 
+		ON de.dept_no = d.dept_no
+	INNER JOIN salaries s
+		ON s.emp_no = e.emp_no
+			AND s.to_date > now()
+GROUP BY d.dept_name;
+
+#function
+#max min avg sum count
+SELECT d.dept_name, 
+	max(s.salary) max_salary,
+	min(s.salary) min_salary,
+	avg(s.salary) avg_salary,
+	sum(s.salary) sum_salary,
+	count(s.salary) num_employees
+FROM employees e
+	INNER JOIN dept_emp de
+		ON de.emp_no = e.emp_no
+			AND de.to_date > now()
+	INNER JOIN departments d 
+		ON de.dept_no = d.dept_no
+	INNER JOIN salaries s
+		ON s.emp_no = e.emp_no
+			AND s.to_date > now()
+GROUP BY d.dept_name;
+
+SELECT d.dept_name, year(e.hire_date) year_hired,
+	max(s.salary) max_salary,
+	min(s.salary) min_salary
+FROM employees e
+	INNER JOIN dept_emp de
+		ON de.emp_no = e.emp_no
+			AND de.to_date > now()
+	INNER JOIN departments d 
+		ON de.dept_no = d.dept_no
+	INNER JOIN salaries s
+		ON s.emp_no = e.emp_no
+			AND s.to_date > now()
+GROUP BY d.dept_name, year(e.hire_date)
+ORDER BY 1, 2;
+
+SELECT d.dept_name, year(e.hire_date) year_hired,
+	max(s.salary) max_salary,
+	min(s.salary) min_salary
+FROM employees e
+	INNER JOIN dept_emp de
+		ON de.emp_no = e.emp_no
+			AND de.to_date > now()
+	INNER JOIN departments d 
+		ON de.dept_no = d.dept_no
+	INNER JOIN salaries s
+		ON s.emp_no = e.emp_no
+			AND s.to_date > now()
+GROUP BY d.dept_name, year(e.hire_date)
+HAVING max(s.salary) - min(s.salary) > 100000
+ORDER BY 1, 2;
+
+# WITH ROLLUP
+# sub total and grand total
+
+# CUBE
+# not available in mySql
+
+# video 2.08
+# -----------
+# subqueries
+
+SELECT e.first_name, e.last_name, e.hire_date
+	FROM employees e 
+	WHERE e.hire_date =
+		(SELECT max(hire_date)
+		FROM employees);
+
+SELECT e.first_name, e.last_name, e.hire_date
+	FROM employees e 
+	WHERE e.hire_date IN
+		(SELECT DISTINCT hire_date
+		FROM employees
+		WHERE hire_date >= '2000-01-01');
+
+SELECT e.first_name, e.last_name
+	FROM employees e 
+	WHERE e.emp_no NOT IN
+		(SELECT emp_no FROM salaries
+		WHERE salary < 125000);
+
+SELECT e.first_name, e.last_name
+	FROM employees e
+	WHERE (emp_no, hire_date) IN
+		(SELECT emp_no, from_date
+		FROM salaries
+		WHERE salary >= 120000);
+
+# correlated subqueries
+SELECT e.first_name, e.last_name
+	FROM employees e 
+	WHERE EXISTS
+		(SELECT 1 FROM titles t 
+		WHERE t.emp_no = e.emp_no
+			AND t.title = 'Manager');
+
+SELECT e.first_name, e.last_name
+	FROM employees e 
+	WHERE 3 =
+		(SELECT count(distinct title)
+		FROM titles t
+		WHERE t.emp_no = e.emp_no);
+
+
+DELETE FROM employees e 
+WHERE e.emp_no IN
+	(SELECT s.emp_no FROM salaries s 
+	GROUP BY s.emp_no
+	HAVING max(s.to_date) < now());
+
+# add the column regnisation_date 
+ALTER TABLE employees
+	AND resignation_date DATE;
+
+UPDATE employees e 
+SET e.resignation_date =
+	(SELECT max(s.to_date)
+	FROM salaries s 
+	WHERE s.emp_no = e.emp_no)
+WHERE e.emp_no IN
+	(SELECT s.emp_no FROM salaries s 
+	GROUP BY s.emp_no
+	HAVING max(s.to_date) < now());
+
+
+# video 2.09
+# -----------
+# Joins using subqueries
+
+
+
 # video 2.10
 # -----------
 SELECT 'Entry-Level' name, 0 min_value, 49999 max_value
@@ -179,5 +419,9 @@ WITH salary_ranges AS
 	GROUP BY sr.name
 	ORDER BY sr.min_value;
 
-
-
+# video 2.11
+# -----------
+INSERT INTO department_daily
+	(dept_no, daly_dt, dept_name)
+	SELECT d.dept_no, '1996-01-02' daly_dt, d.dept_name
+	FROM department d;

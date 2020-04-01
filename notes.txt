@@ -267,7 +267,17 @@ SELECT 'A' IN ('A', 'B', 'C');
 0 = false
 
 ------------------
-Video 2.04
+Video 2.04 
+
+Joins => bring data together to retrieve data from multipple table in a simple query
+Look at the select statement file
+
+------------------
+Video 2.06
+
+UNION = every row of set A and every row of set B
+
+
 
 
 
