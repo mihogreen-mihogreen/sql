@@ -218,14 +218,61 @@ SELECT product_id, year, sum(sales) product_sales, CASE
 SELECT * 
     FROM product_sales_totals;
 
-#8. Write a query to return all sales data for 2020, along with a column showing the percentage of sales for each product.  Columns should include product_id, region_id, month, sales, and pct_product_sales.
+#8. Write a query to return all sales data for 2020, along with a column showing the percentage of sales for each product.  
+# Columns should include product_id, region_id, month, sales, and pct_product_sales.
 # ---------------
 
-#9. Write a query to return the year, month, and sales columns, along with a 4th column named prior_month_sales showing the sales from the prior month.  There are only 12 rows in the sales_totals table, one for each month of 2020, so you will not need to group data or filter/partition on region_id or product_id.
-# ---------------
+# use round and order by to make it look better
+#SELECT 
+#    product_id,
+#    region_id,
+#    month,
+#    sales,
+#    (SELECT 
+#            ROUND((sales / (SELECT 
+#                                SUM(sales)
+#                            FROM
+#                                sales_totals
+#                            WHERE
+#                                year = 2020) * 100),
+#                        1) AS RoundValue
+#        ) pct_product_sales
+#    FROM sales_totals
+#WHERE year = 2020
+#ORDER BY pct_product_sales desc;
 
-#10. If the tables used in this prompt are in the ‘sales’ database, write a query to retrieve the name and type of each of the columns in the Product table. Please specify the 'sales' database in your answer.
+# use over
+SELECT 
+    product_id,
+    region_id,
+    month,
+    sales,
+    round ((sales/SUM(sales) over() * 100),1) pct_product_sales
+    FROM sales_totals
+WHERE year = 2020
+ORDER BY pct_product_sales desc;
+
+#9. Write a query to return the year, month, and sales columns, along with a 4th column named prior_month_sales showing the sales from the prior month.  
+# There are only 12 rows in the sales_totals table, one for each month of 2020, so you will not need to group data or filter/partition on region_id or product_id.
 # ---------------
+SELECT 
+    year,
+    month,
+    sales,
+    lag (sales) over (order by month asc) prior_month_sales
+FROM sales_totals
+ORDER BY month;
+
+#10. If the tables used in this prompt are in the ‘sales’ database, write a query to retrieve the name and type of each of the columns in the Product table. 
+# Please specify the 'sales' database in your answer.
+# ---------------
+SELECT column_name, column_type
+    FROM information_schema.columns
+    WHERE table_schema = 'sales'
+    AND table_name = 'product';
+
+# all the metadata are displayed by this command
+# desc sales.product;
 
 
 
