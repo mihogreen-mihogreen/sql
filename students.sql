@@ -148,8 +148,9 @@ VALUES
 #10- Write a query to return the first and last names of all students who have not enrolled in any class.  Use a correlated subquery against the Enrollment table.
 # ---------------
 # SQL Correlated Subqueries are used to select data from a table referenced in the outer query. The subquery is known as a correlated because the subquery is related to the outer query.
+# could not find a query with a correlated subquery
 
-# this not a correlated sub queries (I couldn't find how to make it correlated)
+# one answer with no subquery
 SELECT s.first_name, s.last_name
 	FROM student s
 	LEFT JOIN enrollment e
